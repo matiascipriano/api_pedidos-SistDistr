@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from models.pedido import Pedido
 from database import SessionLocal
 from helpers.logging import logger
+from pydantic import BaseModel
 
 # Tener una session nueva para cada consulta
 def get_db():
@@ -14,11 +15,11 @@ def get_db():
 
 router = APIRouter()
 
-class PedidoDB():
-    estado = str
-    cliente = str
+class PedidoDB(BaseModel):
+    estado : str
+    cliente : str
     # [ {"material": "nombre_material", "cantidad": int}, {...} ]
-    items = list
+    items : list
 
 
 # Metodo GET para obtener todos los pedidos existentes en la db

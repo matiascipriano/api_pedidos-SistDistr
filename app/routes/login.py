@@ -1,7 +1,6 @@
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from models.usuario import Usuario
-from models.rol import Rol
 from pydantic import BaseModel
 from database import SessionLocal
 from fastapi import APIRouter, Depends, Header, HTTPException, status
@@ -9,7 +8,6 @@ from helpers.logging import logger
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from bonita import login_bonitasoft
 
 # Tener una session nueva para cada consulta
 def get_db():

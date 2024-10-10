@@ -49,7 +49,7 @@ def insertar_material(pedido: PedidoDB, db: Session = Depends(get_db)):
     
     try:
         # Insertando nuevo pedido en la db
-        logger.info(f"Insertando pedido para {pedido.get('cliente')}")
+        logger.info(f"Insertando pedido para {pedido.cliente}")
         pedido = Pedido.insertar_pedido(pedido, db)
         return pedido
     except Exception as e:

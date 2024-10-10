@@ -5,15 +5,17 @@ from database import Base
 from models.item import Item
 from models.centro import Centro
 from models.material import Material
+from helpers.logging import logger
+
 
 class Pedido(Base):
     __tablename__ = 'pedido'
 
-    idPedido = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    idpedido = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     estado = Column(String(20), nullable=False)
     cliente = Column(String(100), nullable=False)
     # Este campo sera null si el pedido no esta "en progreso"
-    idCentro = Column(Integer, ForeignKey('centro.idCentro'), nullable=True)
+    idcentro = Column(Integer, ForeignKey('centro.idcentro'), nullable=True)
     # Relaciones
     centro = relationship("Centro")
     ## Relación uno-a-muchos con Item
@@ -32,12 +34,12 @@ class Pedido(Base):
             pedidos = db.query(Pedido).filter(Pedido.estado == estado).any()
             for pedido in pedidos:
                 obj = {
-                    "Pedido": pedido.idPedido,
+                    "Pedido": pedido.idpedido,
                     "Estado": pedido.estado,
                     "Cliente": pedido.cliente
                 }
-                if (estado == "en progreso" and pedido.idCentro != None):
-                    obj["Centro"] = Centro.devolver_centro(pedido.idCentro, db)
+                if (estado == "en progreso" and pedido.idcentro != None):
+                    obj["Centro"] = Centro.devolver_centro(pedido.idcentro, db)
                 response.append(obj)
             return response
         except Exception as e:
@@ -45,17 +47,19 @@ class Pedido(Base):
         
     def insertar_pedido(data, db: Session):
         try:
-            pedido = Pedido(estado="generado", cliente=data.get("cliente"))
-            for mat in data.get("items"):
-                material = Material.devolver_material_por_nombre(mat.get('material'), db)
+            items =[]
+            for mat in data.items:
+                material = Material.devolver_material_por_nombre(mat["material"], db)
                 item = Item(
-                    idMaterial=int(material.idMaterial),
-                    cantidad=int(mat.get('cantidad'))
+                    idmaterial=int(material.idmaterial),
+                    cantidad=int(mat["cantidad"])
                 )
-                pedido.items.append(item)
+                items.append(item)
+            pedido = Pedido(estado="generado", cliente=data.cliente,items=items)
             db.add(pedido)
             db.commit()
             db.refresh(pedido)
             return pedido
         except Exception as e:
+            logger.error(f"Error en modelo pedido. {e}")
             raise HTTPException(status_code=500, detail=f"Error al insertar recoleccion: {e}")

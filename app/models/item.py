@@ -6,8 +6,9 @@ from database import Base
 class Item(Base):
     __tablename__ = 'item'
 
-    idItem = Column(Integer, primary_key=True, autoincrement=True, unique=True)
-    idMaterial = Column(Integer, ForeignKey('material.idMaterial'))
+    iditem = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    idmaterial = Column(Integer, ForeignKey('material.idmaterial'))
+    idpedido = Column(Integer, ForeignKey('pedido.idpedido'))
     cantidad = Column(Integer, nullable=False)
     
     # Relación con Material

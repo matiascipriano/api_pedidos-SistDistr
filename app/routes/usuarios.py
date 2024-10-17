@@ -42,11 +42,9 @@ def get_usuarios_todos(db: Session = Depends(get_db)):
 def insertar_usuario(usuario: UsuarioInDB, db: Session = Depends(get_db)):
     ## TODO Verificar que el usuario tenga el token necesario
     # Verificando que el usuario no exista
-    usuarios = Usuario.devolver_usuarios(db)
-    for user in usuarios:
-        if ((user.usuario).lower() == usuario.usuario.lower()):
-            logger.error(f"El usuario {usuario} ya existe")
-            raise HTTPException(status_code=500, detail=f"Ya existe este usuario bajo el nombre: {user.usuario}")
+    if(Usuario.obtener_usuario_por_nombre_usuario(usuario.usuario.lower(),db)):
+        logger.error(f"El usuario {usuario} ya existe")
+        raise HTTPException(status_code=500, detail=f"Ya existe este usuario bajo el nombre: {usuario.usuario}")
     try:
         # Insertando nuevo usuario en la db
         logger.info(f"Insertando usuario: {usuario.usuario}")

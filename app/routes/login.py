@@ -37,7 +37,7 @@ class TokenData(BaseModel):
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         print (f"Obteniendo usuario actual")
-        print (f"Token: ", token)
+        print (f"Token: {token}")
         # Decodificar el token JWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("sub")
@@ -67,9 +67,10 @@ async def login(loginData: dict, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Credenciales invalidas")
     elif not pwd_context.verify(password, user.contraseña):
         raise HTTPException(status_code=401, detail="Credenciales invalidas")
-    login_bonitasoft(username, password)
+   # login_bonitasoft(username, password)
     logger.info(f"Usuario {username} logueado correctamente")
     # Incluye el rol en el token
-    token_data = {"sub": user.idUsuario}
+    print(type(user.idusuario))
+    token_data = {"sub": str(user.idusuario)}
     access_token = create_access_token(data=token_data)
     return {"access_token": access_token, "token_type": "bearer"}

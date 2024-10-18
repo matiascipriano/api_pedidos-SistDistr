@@ -22,8 +22,10 @@ def get_materiales_todos(db: Session = Depends(get_db)):
     try:
         # Obteniendo todos los centros de recoleccion
         materiales = Material.devolver_materiales_todos(db)
-        if (materiales == None):
-            raise HTTPException(status_code=404, detail="No se encontraron materiales de recolección en la base de datos.")
+        if not materiales:
+            logger.error(f"No hay materiales")
+            return
+            #raise HTTPException(status_code=404, detail="No se encontraron materiales de recolección en la base de datos.")
         return materiales
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
@@ -37,15 +39,14 @@ def insertar_material(nombre: str, descr: str, db: Session = Depends(get_db)):
     ## TODO Verificar que el usuario tenga el token necesario
 
     # Verificando que el material no exista
-    materiales = Material.devolver_materiales_todos(db)
-    for material in materiales:
-        if ((material.nombre).lower() == nombre):
-            logger.error(f"El material {nombre} ya existe")
-            raise HTTPException(status_code=500, detail=f"Ya existe este material de recolección bajo el nombre: {material.nombre}")
+    if (Material.devolver_material_por_nombre(nombre,db)):
+        logger.error(f"El material {nombre} ya existe")
+        return
+        #raise HTTPException(status_code=500, detail=f"Ya existe este material de recolección bajo el nombre: {nombre}")
     try:
         # Insertando nuevo material en la db
         logger.info(f"Insertando material: {nombre}")
-        material = Material.insertar_material(nombre, db)
+        material = Material.insertar_material(nombre,descr, db)
         return material
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error insertando nuevo material de recoleccion. {e}")

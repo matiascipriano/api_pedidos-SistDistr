@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   fastapi:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
@@ -10,10 +10,17 @@ services:
     depends_on:
       - db
     environment:
-      - DB_USERNAME=PONERELUSERNAME
-      - DB_PASSWORD=PONERLAPASS 
-      - DB_HOST=localhost:5432 
-      - DB_NAME=PONERELDBNAME
+      - DB_USERNAME=root
+      - DB_PASSWORD=rootpassword
+      - DB_HOST=db
+      - DB_NAME=api_pedidos
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./app
+          target: /app
+        - action: rebuild
+          path: ./app/requirements.txt
 
   db:
     image: postgres:latest

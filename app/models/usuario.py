@@ -7,7 +7,7 @@ from helpers.logging import logger
 class Usuario(Base):
     __tablename__ = 'usuario'
 
-    idUsuario = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    idusuario = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     usuario = Column(String(20), nullable=False)
     contraseña = Column(String(255), nullable=False)
     nombre_completo = Column(String(100), nullable=False)
@@ -32,7 +32,7 @@ class Usuario(Base):
                 
     def devolver_usuario(id,db: Session):
         try:
-            usuario = db.query(Usuario).filter(Usuario.idUsuario == id).first()
+            usuario = db.query(Usuario).filter(Usuario.idusuario == id).first()
             return usuario
         except Exception as e:
             logger.error(f"Error al devolver el usuario: {e}")

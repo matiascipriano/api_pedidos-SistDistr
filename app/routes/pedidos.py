@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from routes import login
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 from models.pedido import Pedido
 from database import SessionLocal
@@ -43,13 +44,17 @@ def get_pedidos_todos(db: Session = Depends(get_db)):
 # Metodo POST para insertar un nuevo pedido
 # POST - /pedidos/insertar
 @router.post("/insertar", response_model=None)
-def insertar_material(pedido: PedidoDB, db: Session = Depends(get_db)):
+def insertar_pedido(pedido: PedidoDB, request: Request, db: Session = Depends(get_db)):
     
     ## TODO Verificar que el usuario tenga el token necesario
-    
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token)
     try:
         # Insertando nuevo pedido en la db
-        logger.info(f"Insertando pedido para {pedido.get('cliente')}")
+        logger.info(f"Insertando pedido para {pedido.cliente}")
         pedido = Pedido.insertar_pedido(pedido, db)
         return pedido
     except Exception as e:

@@ -37,11 +37,10 @@ def insertar_centro(nombre: str, direcc: str, db: Session = Depends(get_db)):
     ## TODO Verificar que el usuario tenga el token necesario
 
     # Verificando que el centro no exista
-    centros = Centro.devolver_centros_todos(db)
-    for centro in centros:
-        if ((centro.nombre).lower() == nombre):
-            logger.error(f"El grupo {nombre} ya existe")
-            raise HTTPException(status_code=500, detail=f"Ya existe este centro de recolección bajo el nombre: {centro.nombre}")
+    if (Centro.devolver_centro_por_nombre(nombre,db)):
+        logger.error(f"El grupo {nombre} ya existe")
+        #raise HTTPException(status_code=500, detail=f"Ya existe este centro de recolección bajo el nombre: {centro.nombre}")
+        return
     try:
         # Insertando nuevo centro en la db
         logger.info(f"Insertando grupo: {nombre}")

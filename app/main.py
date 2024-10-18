@@ -51,4 +51,4 @@ async def favicon():
 
 @app.get("/")
 async def root():
-    return {"message": f"La API que necesitabas para organizar tus pedidos de materiales reciclados."}
+    return {"message": f"La API que necesitabas para organizar tus pedidos de materiales reciclados. De paso probamos el deploy automatico de render"}

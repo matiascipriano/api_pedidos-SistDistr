@@ -20,10 +20,10 @@ Se usara una base de datos postgres.
 ### Tablas
 - Pedido
     - Compuesto por estado, cliente y una lista de items.
-        - En caso de que este en estado "en progreso" tiene un idCentro.
+        - En caso de que este en estado "tomado" tiene un idCentro.
     - Estados:
         - "generado"
-        - "en progreso"
+        - "tomado"
         - "finalizado"
 - Item
     - Compuesto por idMaterial y cantidad.

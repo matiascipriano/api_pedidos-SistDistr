@@ -60,3 +60,21 @@ def insertar_pedido(pedido: PedidoDB, request: Request, db: Session = Depends(ge
     except Exception as e:
         logger.error(f"Error insertando nuevo pedido. {e}")
         raise HTTPException(status_code=500, detail=f"Error insertando nuevo pedido. {e}")
+    
+# Metodo GET para obtener los pedidos a partir de un estado
+# GET - /pedidos/estado/{estado}
+@router.get("/estado/{estado}", response_model=None)
+def get_pedidos_por_estado(estado: str, db: Session = Depends(get_db)):
+        
+        ## TODO Verificar que el usuario tenga el token necesario
+    
+        try:
+            # Obteniendo pedidos por estado
+            logger.info(f"Devolviendo pedidos en estado {estado}")
+            pedidos = Pedido.devolver_pedidos_por_estado(estado, db)
+            if (pedidos == None):
+                raise HTTPException(status_code=404, detail=f"No se encontraron pedidos en estado {estado}")
+            return pedidos
+        except Exception as e:
+            logger.error(f"Hubo una excepcion: {e}")
+            raise HTTPException(status_code=500, detail="Error interno del servidor.")

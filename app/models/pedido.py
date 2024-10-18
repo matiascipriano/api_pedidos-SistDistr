@@ -14,7 +14,7 @@ class Pedido(Base):
     idpedido = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     estado = Column(String(20), nullable=False)
     cliente = Column(String(100), nullable=False)
-    # Este campo sera null si el pedido no esta "en progreso"
+    # Este campo sera null si el pedido no esta "tomado"
     idcentro = Column(Integer, ForeignKey('centro.idcentro'), nullable=True)
     # Relaciones
     centro = relationship("Centro")
@@ -38,7 +38,7 @@ class Pedido(Base):
                     "Estado": pedido.estado,
                     "Cliente": pedido.cliente
                 }
-                if (estado == "en progreso" and pedido.idcentro != None):
+                if (estado == "tomado" and pedido.idcentro != None):
                     obj["Centro"] = Centro.devolver_centro(pedido.idcentro, db)
                 response.append(obj)
             return response

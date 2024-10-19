@@ -21,6 +21,13 @@ class Pedido(Base):
     ## Relación uno-a-muchos con Item
     items = relationship("Item", back_populates="pedido", cascade="all, delete-orphan")
 
+    def devolver_pedido(id, db: Session):
+        try:
+            pedido = db.query(Pedido).filter(Pedido.idpedido == id).first()
+            return pedido
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error al devolver el pedido: {e}")
+
     def devolver_pedidos_todos(db: Session):
         try:
             pedidos = db.query(Pedido).all()
@@ -63,3 +70,42 @@ class Pedido(Base):
         except Exception as e:
             logger.error(f"Error en modelo pedido. {e}")
             raise HTTPException(status_code=500, detail=f"Error al insertar recoleccion: {e}")
+        
+    def cambiar_estado_pedido(id, estado, db):
+        try:
+            pedido = db.query(Pedido).filter(Pedido.idpedido == id).first()
+            if pedido == None:
+                raise HTTPException(status_code=404, detail="No se encontro el pedido")
+            pedido.estado = estado
+            db.commit()
+            db.refresh(pedido)
+            return pedido
+        except Exception as e:
+            logger.error(f"Error actualizando pedido {id}. {e}")
+            raise HTTPException(status_code=500, detail=f"Error al cambiar estado del pedido: {e}")
+        
+    def cambiar_estado_pedido_centro(id, estado, centro, db):
+        try:
+            pedido = db.query(Pedido).filter(Pedido.idpedido == id).first()
+            if pedido == None:
+                raise HTTPException(status_code=404, detail="No se encontro el pedido")
+            pedido.estado = estado
+            pedido.idcentro = centro
+            db.commit()
+            db.refresh(pedido)
+            return pedido
+        except Exception as e:
+            logger.error(f"Error actualizando pedido {id}. {e}")
+            raise HTTPException(status_code=500, detail=f"Error al cambiar estado del pedido: {e}")
+        
+    def devolver_materiales_pedido(id, db):
+        try:
+            items = db.query(Item).filter(Item.idpedido == id).all()
+            materiales = []
+            for item in items:
+                material = Material.devolver_material(item.idmaterial, db)
+                materiales.append(material)
+            return materiales
+        except Exception as e:
+            logger.error(f"Error devolviendo materiales del pedido {id}. {e}")
+            raise HTTPException(status_code=500, detail=f"Error al devolver materiales del pedido: {e}")

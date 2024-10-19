@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 from models.material import Material
 from database import SessionLocal
 from helpers.logging import logger
+from routes import login
 
 # Tener una session nueva para cada consulta
 def get_db():
@@ -16,7 +17,7 @@ router = APIRouter()
 
 # Metodo GET para obtener todos los materiales existentes en la db
 # GET - /materiales/todos
-@router.get("/todos", response_model=None)
+@router.get("/todos", response_model=None, tags=["admin"])
 def get_materiales_todos(db: Session = Depends(get_db)):
     logger.info("Devolviendo todos los materiales")
     try:
@@ -33,11 +34,13 @@ def get_materiales_todos(db: Session = Depends(get_db)):
 
 # Metodo POST para insertar un nuevo material de recoleccion
 # POST - /materiales/insertar
-@router.post("/insertar", response_model=None)
-def insertar_material(nombre: str, descr: str, db: Session = Depends(get_db)):
-    
-    ## TODO Verificar que el usuario tenga el token necesario
-
+@router.post("/insertar", response_model=None, tags=["admin"])
+def insertar_material(nombre: str, request: Request, descr: str, db: Session = Depends(get_db)):
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token)
     # Verificando que el material no exista
     if (Material.devolver_material_por_nombre(nombre,db)):
         logger.error(f"El material {nombre} ya existe")

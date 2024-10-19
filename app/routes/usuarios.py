@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 from models.usuario import Usuario
 from database import SessionLocal
 from pydantic import BaseModel
 from helpers.logging import logger
 from routes.login import pwd_context
+from routes import login
 
 # Tener una session nueva para cada consulta
 def get_db():
@@ -23,7 +24,7 @@ class UsuarioInDB(BaseModel):
 
 # Metodo GET para obtener todos los usuarios existentes en la db
 # GET - /usuarios/todos
-@router.get("/todos", response_model=None)
+@router.get("/todos", response_model=None, tags=["admin"])
 def get_usuarios_todos(db: Session = Depends(get_db)):
     logger.info("Devolviendo todos los usuarios")
     try:
@@ -38,9 +39,13 @@ def get_usuarios_todos(db: Session = Depends(get_db)):
     
 # Metodo POST para generar un nuevo usuario en la base datos
 # POST - /usuarios/insertar
-@router.post("/insertar", response_model=None)
-def insertar_usuario(usuario: UsuarioInDB, db: Session = Depends(get_db)):
-    ## TODO Verificar que el usuario tenga el token necesario
+@router.post("/insertar", response_model=None, tags=["admin"])
+def insertar_usuario(usuario: UsuarioInDB, request: Request, db: Session = Depends(get_db)):
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token)
     # Verificando que el usuario no exista
     if(Usuario.obtener_usuario_por_nombre_usuario(usuario.usuario.lower(),db)):
         logger.error(f"El usuario {usuario} ya existe")

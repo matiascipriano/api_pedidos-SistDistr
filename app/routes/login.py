@@ -20,7 +20,7 @@ def get_db():
 router = APIRouter()
 
 # Configuración del secreto para firmar los tokens
-SECRET_KEY = "SUPERSECRET"
+SECRET_KEY = "SUPERDUPERSECRET"
 ALGORITHM = "HS256"
 
 # Manejo de contraseñas
@@ -29,9 +29,19 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Dependencia para autenticación
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Modelo del usuario para representar lo que extraemos del token
+# Modelo del usuario para representar lo que extraemos del token (el user id)
 class TokenData(BaseModel):
     user_id: int
+
+# Modelo del token
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    
+# Modelo del login
+class LoginData(BaseModel):
+    username: str
+    password: str
 
 # Función para decodificar el token y obtener los datos del usuario
 def get_current_user(token: str = Depends(oauth2_scheme)):
@@ -57,11 +67,11 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-@router.post("/login")
-async def login(loginData: dict, db: Session = Depends(get_db)):
-    logger.info(f"Intento de login de usuario {loginData.get('username')}")
-    username = loginData.get("username")
-    password = loginData.get("password")
+@router.post("/login", response_model=Token, tags=["admin", "centro"])
+async def login(loginData: LoginData, db: Session = Depends(get_db)):
+    logger.info(f"Intento de login de usuario {loginData.username}")
+    username = loginData.username
+    password = loginData.password
     user = Usuario.obtener_usuario_por_nombre_usuario(username, db)
     if user == None:
         raise HTTPException(status_code=401, detail="Credenciales invalidas")
@@ -73,4 +83,4 @@ async def login(loginData: dict, db: Session = Depends(get_db)):
     print(type(user.idusuario))
     token_data = {"sub": str(user.idusuario)}
     access_token = create_access_token(data=token_data)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token, token_type="bearer")

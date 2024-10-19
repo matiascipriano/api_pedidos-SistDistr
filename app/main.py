@@ -16,9 +16,9 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Mi API",
+        title="API PEDIDOS - Grupo 11",
         version="1.0.0",
-        description="Descripción de mi API con autenticación JWT",
+        description="API para gestionar pedidos para centros de recoleccion con manejo de Token JWT",
         routes=app.routes,
     )
     openapi_schema["openapi"] = "3.1.0"  # Asegurando que estamos usando OpenAPI 3.1.0

@@ -45,7 +45,7 @@ class Pedido(Base):
                     "Estado": pedido.estado,
                     "Cliente": pedido.cliente
                 }
-                if (estado == "tomado" and pedido.idcentro is not None):
+                if ((estado == "tomado" or estado=='enviado')and pedido.idcentro is not None):
                     obj["Centro"] = Centro.devolver_centro(pedido.idcentro, db)
                 response.append(obj)
             return response

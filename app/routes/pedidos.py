@@ -156,3 +156,25 @@ def tomar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depe
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
         raise HTTPException(status_code=500, detail="Error interno del servidor.")
+
+
+# Metodo GET para obtener los pedidos a partir de un estado
+# GET - /pedidos/material/{nombre}
+@router.get("/material/{nombre}", response_model=None, tags=["centro"])
+def get_pedidos_por_material(material: str, request: Request, db: Session = Depends(get_db)):
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token) 
+    try:
+        # Obteniendo pedidos por estado
+        logger.info(f"Devolviendo pedidos con material {material}")
+        pedidos = Pedido.devolver_pedidos_por_material(material, db)
+        if (pedidos == None):
+            raise HTTPException(status_code=404, detail=f"No se encontraron pedidos en estado {estado}")
+        return pedidos
+    except Exception as e:
+        logger.error(f"Hubo una excepcion: {e}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor.")
+    

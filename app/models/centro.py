@@ -1,8 +1,15 @@
-from sqlalchemy import Column, Integer, String, func
+from sqlalchemy import Table, Column, Integer, String, func, ForeignKey
 from sqlalchemy.orm import Session
 from database import Base
 from sqlalchemy.orm import relationship
 from models.material import Material
+
+
+centro_material = Table(
+    'centro_material', Base.metadata,
+    Column('idcentro', Integer, ForeignKey('centro.idcentro'), primary_key=True),
+    Column('idmaterial', Integer, ForeignKey('material.idmaterial'), primary_key=True)
+)
 
 class Centro(Base):
     __tablename__ = 'centro'
@@ -11,7 +18,7 @@ class Centro(Base):
     nombre = Column(String(45), nullable=False)
     direccion = Column(String(45), nullable=False)
     ## Relación uno-a-muchos con Material
-    materiales = relationship("Material", back_populates="centro")
+    materiales = relationship("Material", secondary="centro_material", back_populates="centros")
 
     def devolver_centro(id, db: Session):
         try:
@@ -58,10 +65,10 @@ class Centro(Base):
         except Exception as e:
             raise Exception(f"Error al referenciar los materiales: {e}")
 
-    def insertar_centro_con_materiales(nombre, direccion, materiales, db: Session):
+    def insertar_centro_con_materiales(nombre, direccion, materiales, db: Session): 
         try:
             centro = Centro.insertar_centro(nombre, direccion, db)
             Centro.referenciar_materiales(nombre, materiales, db)
             return centro
         except Exception as e:
-            raise Exception(f"Error al insertar el centro con materiales: {e}") 
+            raise Exception(f"Error al insertar el centro con materiales: {e}")

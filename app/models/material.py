@@ -10,7 +10,7 @@ class Material(Base):
     nombre = Column(String(45), nullable=False, unique=True)
     descripcion = Column(String(45), nullable=False)
     # Relacion con Centro
-    pedido = relationship("Centro", back_populates="materiales")
+    centros = relationship("Centro",secondary="centro_material", back_populates="materiales")
 
     def devolver_material(id, db: Session):
         try:

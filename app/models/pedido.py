@@ -38,14 +38,14 @@ class Pedido(Base):
     def devolver_pedidos_por_estado(estado, db: Session):
         try:
             response = []
-            pedidos = db.query(Pedido).filter(Pedido.estado == estado).any()
+            pedidos = db.query(Pedido).filter(Pedido.estado == estado).all()
             for pedido in pedidos:
                 obj = {
                     "Pedido": pedido.idpedido,
                     "Estado": pedido.estado,
                     "Cliente": pedido.cliente
                 }
-                if (estado == "tomado" and pedido.idcentro != None):
+                if (estado == "tomado" and pedido.idcentro is not None):
                     obj["Centro"] = Centro.devolver_centro(pedido.idcentro, db)
                 response.append(obj)
             return response
@@ -109,3 +109,20 @@ class Pedido(Base):
         except Exception as e:
             logger.error(f"Error devolviendo materiales del pedido {id}. {e}")
             raise HTTPException(status_code=500, detail=f"Error al devolver materiales del pedido: {e}")
+    
+
+    def devolver_pedidos_por_material(nombre, db: Session):
+        try:
+            material = Material.devolver_material_por_nombre(nombre, db)
+            pedidos = (
+            db.query(Pedido)
+            .join(Item, Pedido.idpedido == Item.idpedido)
+            .filter(Item.idmaterial == material.idmaterial)
+            .filter(Pedido.estado == "generado")
+            .all()
+             )
+            return pedidos
+        except Exception as e:
+            logger.error(f"Error en modelo pedido. {e}")
+            raise HTTPException(status_code=500, detail=f"Error al insertar recoleccion: {e}")
+     

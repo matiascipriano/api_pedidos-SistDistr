@@ -45,7 +45,7 @@ class Pedido(Base):
                     "Estado": pedido.estado,
                     "Cliente": pedido.cliente
                 }
-                if (estado == "tomado" and pedido.idcentro is not None):
+                if ((estado == "tomado" or estado=='enviado')and pedido.idcentro is not None):
                     obj["Centro"] = Centro.devolver_centro(pedido.idcentro, db)
                 response.append(obj)
             return response
@@ -125,4 +125,16 @@ class Pedido(Base):
         except Exception as e:
             logger.error(f"Error en modelo pedido. {e}")
             raise HTTPException(status_code=500, detail=f"Error al insertar recoleccion: {e}")
+
+    def devolver_pedidos_por_centro(centro, db: Session, estado=None):
+        try:
+            query = db.query(Pedido).filter(Pedido.idcentro == centro)
+    
+            if estado is not None:
+                 query = query.filter(Pedido.estado == estado)
+
+            pedidos = query.all()
+            return pedidos
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error: {e}")
      

@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from database import Base
 from sqlalchemy.orm import relationship
 from models.material import Material
+from helpers.logging import logger
+
 
 
 centro_material = Table(
@@ -57,7 +59,8 @@ class Centro(Base):
                 if (material == None):
                     raise Exception(f"El material {mat} no existe")
                 if (material in centro.materiales):
-                    raise Exception(f"El material {mat} ya esta referenciado en el centro {centro.nombre}")
+                    logger.info(f"El material {mat} ya esta referenciado en el centro {centro.nombre}")
+                    continue
                 centro.materiales.append(material)
                 db.commit()
                 db.refresh(centro)

@@ -16,7 +16,7 @@ CREATE TABLE material (
   descripcion VARCHAR(45) NOT NULL
 );
 
-
+DROP TABLE IF EXISTS centro_material;
 CREATE TABLE centro_material (
     idcentro INTEGER NOT NULL,
     idmaterial INTEGER NOT NULL,
@@ -57,4 +57,3 @@ CREATE TABLE usuario (
   nombre_completo VARCHAR(100) NOT NULL
 );
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO root;

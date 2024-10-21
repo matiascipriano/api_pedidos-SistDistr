@@ -158,9 +158,9 @@ def tomar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depe
         raise HTTPException(status_code=500, detail="Error interno del servidor.")
 
 
-# Metodo GET para obtener los pedidos a partir de un estado
-# GET - /pedidos/material/{nombre}
-@router.get("/material/{nombre}", response_model=None, tags=["centro"])
+# Metodo GET para obtener los pedidos a partir de un material
+# GET - /pedidos/disponibles/material/{material}
+@router.get("/disponibles/material/{material}", response_model=None, tags=["centro"])
 def get_pedidos_por_material(material: str, request: Request, db: Session = Depends(get_db)):
     try:
         token = request.headers.get("Authorization").split()[1]
@@ -172,9 +172,35 @@ def get_pedidos_por_material(material: str, request: Request, db: Session = Depe
         logger.info(f"Devolviendo pedidos con material {material}")
         pedidos = Pedido.devolver_pedidos_por_material(material, db)
         if (pedidos == None):
-            raise HTTPException(status_code=404, detail=f"No se encontraron pedidos en estado {estado}")
+            raise HTTPException(status_code=404, detail=f"No se encontraron pedidos con material {material}")
         return pedidos
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
         raise HTTPException(status_code=500, detail="Error interno del servidor.")
     
+# Metodo PUT para cancelar un pedido
+# PUT - /pedidos/cancelar/{id}
+@router.put("/cancelar/{id}", response_model=None, tags=["centro"])
+def cancelar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depends(get_db)):
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token)
+    try:
+        # Tomando pedido
+        logger.info(f"Cancelando pedido {id} para {centro.nombre_centro}")
+        pedido = Pedido.devolver_pedido(id, db)
+        if (pedido == None):
+            raise HTTPException(status_code=404, detail="No se encontro el pedido")
+        if (pedido.estado != "tomado"):
+            raise HTTPException(status_code=422, detail="El pedido no esta disponible")
+        centro = Centro.devolver_centro_por_nombre(centro.nombre_centro, db)
+        if (pedido.idcentro == centro.idcentro):
+            pedido = Pedido.cambiar_estado_pedido_centro(id, "generado", None, db)
+        else:
+             raise HTTPException(status_code=422, detail="El pedido no corresponde al centro")
+        return pedido
+    except Exception as e:
+        logger.error(f"Hubo una excepcion: {e}")
+        raise HTTPException(status_code=500, detail="Error interno del servidor.")

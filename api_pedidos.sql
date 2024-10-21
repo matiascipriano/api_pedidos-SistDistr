@@ -17,6 +17,15 @@ CREATE TABLE material (
 );
 
 
+CREATE TABLE centro_material (
+    idcentro INTEGER NOT NULL,
+    idmaterial INTEGER NOT NULL,
+    PRIMARY KEY (idcentro, idmaterial),
+    FOREIGN KEY (idcentro) REFERENCES centro(idcentro),
+    FOREIGN KEY (idmaterial) REFERENCES material(idmaterial)
+);
+
+
 -- Table structure for table `pedido`
 DROP TABLE IF EXISTS pedido;
 CREATE TABLE pedido (

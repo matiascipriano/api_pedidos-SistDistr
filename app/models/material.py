@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, func
 from sqlalchemy.orm import Session
 from database import Base
+from sqlalchemy.orm import relationship
 
 class Material(Base):
     __tablename__ = 'material'
@@ -8,6 +9,8 @@ class Material(Base):
     idmaterial = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     nombre = Column(String(45), nullable=False, unique=True)
     descripcion = Column(String(45), nullable=False)
+    # Relacion con Centro
+    centros = relationship("Centro",secondary="centro_material", back_populates="materiales")
 
     def devolver_material(id, db: Session):
         try:

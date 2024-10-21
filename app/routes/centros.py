@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from sqlalchemy.orm import Session
 from models.centro import Centro
 from database import SessionLocal
 from helpers.logging import logger
+from routes import login
 
 # Tener una session nueva para cada consulta
 def get_db():
@@ -16,7 +17,7 @@ router = APIRouter()
 
 # Metodo GET para obtener todos los centros existentes en la db
 # GET - /centros/todos
-@router.get("/todos", response_model=None)
+@router.get("/todos", response_model=None, tags=["admin"])
 def get_centros_todos(db: Session = Depends(get_db)):
     logger.info("Devolviendo todos los centros")
     try:
@@ -31,16 +32,17 @@ def get_centros_todos(db: Session = Depends(get_db)):
 
 # Metodo POST para insertar un nuevo centro de recoleccion
 # POST - /centros/insertar
-@router.post("/insertar", response_model=None)
-def insertar_centro(nombre: str, direcc: str, db: Session = Depends(get_db)):
-    
-    ## TODO Verificar que el usuario tenga el token necesario
-
+@router.post("/insertar", response_model=None, tags=["admin"])
+def insertar_centro(nombre: str, request: Request, direcc: str, db: Session = Depends(get_db)):
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token)
     # Verificando que el centro no exista
-    if (Centro.devolver_centro_por_nombre(nombre,db)):
+    if (Centro.devolver_centro_por_nombre(nombre,db) != None):
         logger.error(f"El grupo {nombre} ya existe")
-        #raise HTTPException(status_code=500, detail=f"Ya existe este centro de recolección bajo el nombre: {centro.nombre}")
-        return
+        return {"detail": f"Ya existe este centro de recolección bajo el nombre: {centro.nombre}"}
     try:
         # Insertando nuevo centro en la db
         logger.info(f"Insertando grupo: {nombre}")

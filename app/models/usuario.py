@@ -9,13 +9,13 @@ class Usuario(Base):
 
     idusuario = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     usuario = Column(String(20), nullable=False)
-    contraseña = Column(String(255), nullable=False)
+    contrasena = Column(String(255), nullable=False)
     nombre_completo = Column(String(100), nullable=False)
        
     def insertar_usuario(data, db: Session):
         try:
-            usuario = Usuario(usuario=data.usuario, contraseña=data.contraseña, nombre_completo=data.nombre_completo)
-            logger.info(f"Insertando usuario: {usuario.usuario} || {usuario.nombre_completo} || {usuario.contraseña}")
+            usuario = Usuario(usuario=data.usuario, contrasena=data.contrasena, nombre_completo=data.nombre_completo)
+            logger.info(f"Insertando usuario: {usuario.usuario} || {usuario.nombre_completo} || {usuario.contrasena}")
             db.add(usuario)
             db.commit()
             db.refresh(usuario)

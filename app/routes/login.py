@@ -75,7 +75,7 @@ async def login(loginData: LoginData, db: Session = Depends(get_db)):
     user = Usuario.obtener_usuario_por_nombre_usuario(username, db)
     if user == None:
         raise HTTPException(status_code=401, detail="Credenciales invalidas")
-    elif not pwd_context.verify(password, user.contraseña):
+    elif not pwd_context.verify(password, user.contrasena):
         raise HTTPException(status_code=401, detail="Credenciales invalidas")
    # login_bonitasoft(username, password)
     logger.info(f"Usuario {username} logueado correctamente")

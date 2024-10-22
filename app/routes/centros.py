@@ -100,8 +100,8 @@ def get_centros_todos(estado,idcentro, request: Request, db: Session = Depends(g
 
 # Metodo GET para obtener todos los pedidos para el centro
 # GET - /centros/pedidos/{centro}
-@router.get("/pedidos/{idcentro}", response_model=None, tags=["admin"])
-def get_centros_todos(idcentro,request: Request, db: Session = Depends(get_db)):
+@router.get("/admin/pedidos/{idcentro}", response_model=None, tags=["admin"])
+def get_centros_todos_admin(idcentro,request: Request, db: Session = Depends(get_db)):
     try:
         token = request.headers.get("Authorization").split()[1]
     except Exception as e:
@@ -117,8 +117,8 @@ def get_centros_todos(idcentro,request: Request, db: Session = Depends(get_db)):
 
 # Metodo GET para obtener todos los pedidos para el centro con un estado especifico
 # GET - /centros/pedidos/{estado}/{centro}
-@router.get("/pedidos/{estado}/{idcentro}", response_model=None, tags=["admin"])
-def get_centros_todos(estado,idcentro, request: Request, db: Session = Depends(get_db)):
+@router.get("/admin/pedidos/{estado}/{idcentro}", response_model=None, tags=["admin"])
+def get_centros_todos_admin(estado,idcentro, request: Request, db: Session = Depends(get_db)):
     try:
         token = request.headers.get("Authorization").split()[1]
     except Exception as e:

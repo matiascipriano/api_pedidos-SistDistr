@@ -6,6 +6,7 @@ from helpers.logging import logger
 from routes import login
 from models.pedido import Pedido
 from pydantic import BaseModel
+from typing import Optional
 
 # Tener una session nueva para cada consulta
 def get_db():
@@ -59,75 +60,17 @@ def insertar_centro(nombre: str, request: Request, direcc: str, db: Session = De
         raise HTTPException(status_code=500, detail=f"Error insertando nuevo centro de recoleccion. {e}")
 
 
-# Metodo GET para obtener todos los pedidos para el centro
-# GET - /centros/pedidos/{centro}
-@router.get("/pedidos/{idcentro}", response_model=None, tags=["centro"])
-def get_centros_todos(idcentro,request: Request, db: Session = Depends(get_db)):
-    try:
-        token = request.headers.get("Authorization").split()[1]
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Falta authorization header")
-    login.get_current_user(token)
-    logger.info("Devolviendo todos los pedidos para el centro")
-    try:
-        pedidos = Pedido.devolver_pedidos_por_centro(idcentro,db)
-        return pedidos
-    except Exception as e:
-        logger.error(f"Hubo una excepcion: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
-
-# Metodo GET para obtener todos los pedidos para el centro con un estado especifico
-# GET - /centros/pedidos/{estado}/{centro}
-@router.get("/pedidos/{estado}/{idcentro}", response_model=None, tags=["centro"])
-def get_centros_todos(estado,idcentro, request: Request, db: Session = Depends(get_db)):
+# Metodo GET para obtener todos los pedidos de todos los centro, permite filtrar por centro o estado
+# GET - /centros/pedidos
+@router.get("/pedidos", response_model=None, tags=["centro"])
+def get_centros_todos(request: Request, db: Session = Depends(get_db), estado: Optional[str] = None, idcentro: Optional[int] = None):
     try:
         token = request.headers.get("Authorization").split()[1]
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Falta authorization header")
     login.get_current_user(token)
     try:
-        if (estado not in ["tomado", "enviado","entregado"]):
-            raise HTTPException(status_code=422, detail="Estado invalido.")
-        pedidos = Pedido.devolver_pedidos_por_centro(idcentro,db,estado)
-        return pedidos
-    except Exception as e:
-        logger.error(f"Hubo una excepcion: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
-
-
-
-
-
-# Metodo GET para obtener todos los pedidos para el centro
-# GET - /centros/pedidos/{centro}
-@router.get("/admin/pedidos/{idcentro}", response_model=None, tags=["admin"])
-def get_centros_todos_admin(idcentro,request: Request, db: Session = Depends(get_db)):
-    try:
-        token = request.headers.get("Authorization").split()[1]
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Falta authorization header")
-    login.get_current_user(token)
-    logger.info("Devolviendo todos los pedidos para el centro")
-    try:
-        pedidos = Pedido.devolver_pedidos_por_centro(idcentro,db)
-        return pedidos
-    except Exception as e:
-        logger.error(f"Hubo una excepcion: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
-
-# Metodo GET para obtener todos los pedidos para el centro con un estado especifico
-# GET - /centros/pedidos/{estado}/{centro}
-@router.get("/admin/pedidos/{estado}/{idcentro}", response_model=None, tags=["admin"])
-def get_centros_todos_admin(estado,idcentro, request: Request, db: Session = Depends(get_db)):
-    try:
-        token = request.headers.get("Authorization").split()[1]
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Falta authorization header")
-    login.get_current_user(token)
-    try:
-        if (estado not in ["tomado", "enviado","entregado"]):
-            raise HTTPException(status_code=422, detail="Estado invalido.")
-        pedidos = Pedido.devolver_pedidos_por_centro(idcentro,db,estado)
+        pedidos = Pedido.devolver_pedidos_por_centro(db,estado,idcentro)
         return pedidos
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")

@@ -19,7 +19,7 @@ router = APIRouter()
 
 class UsuarioInDB(BaseModel):
     usuario: str
-    contraseña: str
+    contrasena: str
     nombre_completo: str
 
 # Metodo GET para obtener todos los usuarios existentes en la db
@@ -53,8 +53,8 @@ def insertar_usuario(usuario: UsuarioInDB, request: Request, db: Session = Depen
     try:
         # Insertando nuevo usuario en la db
         logger.info(f"Insertando usuario: {usuario.usuario}")
-        hash_pass = pwd_context.hash(usuario.contraseña)
-        usuario.contraseña = hash_pass
+        hash_pass = pwd_context.hash(usuario.contrasena)
+        usuario.contrasena = hash_pass
         usuario = Usuario.insertar_usuario(usuario, db)
         return usuario
     except Exception as e:

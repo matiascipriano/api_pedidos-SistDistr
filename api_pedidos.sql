@@ -53,7 +53,7 @@ DROP TABLE IF EXISTS usuario;
 CREATE TABLE usuario (
   idUsuario SERIAL PRIMARY KEY,
   usuario VARCHAR(20) NOT NULL,
-  contraseña VARCHAR(255) NOT NULL,
+  contrasena VARCHAR(255) NOT NULL,
   nombre_completo VARCHAR(100) NOT NULL
 );
 

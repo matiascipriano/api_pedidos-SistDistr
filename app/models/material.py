@@ -38,4 +38,4 @@ class Material(Base):
             db.refresh(material)
             return material
         except Exception as e:
-            raise e
+            raise Exception(f"Error al insertar el material: {e}")

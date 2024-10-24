@@ -6,7 +6,7 @@ from models.centro import Centro
 from database import SessionLocal
 from helpers.logging import logger
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 # Tener una session nueva para cada consulta
@@ -19,14 +19,17 @@ def get_db():
 
 router = APIRouter()
 
+class ItemDB(BaseModel):
+    material : str
+    cantidad : int
+
 class PedidoDB(BaseModel):
     estado : str
     cliente : str
-    # [ {"material": "nombre_material", "cantidad": int}, {...} ]
-    items : list
+    items : List[ItemDB]
 
 class CentroDB(BaseModel):
-    ## En la BD esta uppercase
+    ## En la BD el nombre esta uppercase
     nombre_centro : str
     direccion: str
 

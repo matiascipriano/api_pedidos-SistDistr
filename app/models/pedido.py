@@ -7,6 +7,25 @@ from models.centro import Centro
 from models.material import Material
 from helpers.logging import logger
 
+        
+def presentar_info_pedidos(pedidos):
+    response = []
+    for pedido in pedidos:
+        obj = {
+            "Pedido": pedido.idpedido,
+            "Estado": pedido.estado,
+            "Cliente": pedido.cliente,
+            "Items": []
+        }
+        for item in pedido.items:
+            obj["Items"].append({
+                "Material": Material.devolver_material(item.idmaterial).nombre,
+                "Cantidad": item.cantidad
+            })
+        if pedido.idcentro is not None:
+            obj["Centro"] = Centro.devolver_centro(pedido.idcentro)
+        response.append(obj)
+    return response
 
 class Pedido(Base):
     __tablename__ = 'pedido'
@@ -31,24 +50,16 @@ class Pedido(Base):
     def devolver_pedidos_todos(db: Session):
         try:
             pedidos = db.query(Pedido).all()
-            return pedidos
+            pedidos_format = presentar_info_pedidos(pedidos)
+            return pedidos_format
         except Exception as e:
             raise Exception(f"Error al devolver los pedidos: {e}")
 
     def devolver_pedidos_por_estado(estado, db: Session):
         try:
-            response = []
             pedidos = db.query(Pedido).filter(Pedido.estado == estado).all()
-            for pedido in pedidos:
-                obj = {
-                    "Pedido": pedido.idpedido,
-                    "Estado": pedido.estado,
-                    "Cliente": pedido.cliente
-                }
-                if ((estado == "tomado" or estado=='enviado')and pedido.idcentro is not None):
-                    obj["Centro"] = Centro.devolver_centro(pedido.idcentro, db)
-                response.append(obj)
-            return response
+            pedidos_format = presentar_info_pedidos(pedidos)
+            return pedidos_format
         except Exception as e:
             raise Exception(f"Error: {e}")
         
@@ -56,10 +67,10 @@ class Pedido(Base):
         try:
             items =[]
             for mat in data.items:
-                material = Material.devolver_material_por_nombre(mat["material"], db)
+                material = Material.devolver_material_por_nombre(mat.material, db)
                 item = Item(
                     idmaterial=int(material.idmaterial),
-                    cantidad=int(mat["cantidad"])
+                    cantidad=int(mat.cantidad)
                 )
                 items.append(item)
             pedido = Pedido(estado="generado", cliente=data.cliente,items=items)
@@ -125,7 +136,8 @@ class Pedido(Base):
             .filter(Pedido.estado == "generado")
             .all()
              )
-            return pedidos
+            pedidos_format = presentar_info_pedidos(pedidos)
+            return pedidos_format
         except Exception as e:
             logger.error(f"Error en modelo pedido. {e}")
             raise Exception(f"Error al insertar recoleccion: {e}")

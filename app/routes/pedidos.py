@@ -55,13 +55,8 @@ def get_pedidos_todos(request: Request, db: Session = Depends(get_db)):
 
 # Metodo POST para insertar un nuevo pedido
 # POST - /pedidos/insertar
-@router.post("/insertar", response_model=None, tags=["admin"])
-def insertar_pedido(pedido: PedidoDB, request: Request, db: Session = Depends(get_db)):
-    try:
-        token = request.headers.get("Authorization").split()[1]
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Falta authorization header")
-    login.get_current_user(token)
+@router.post("/insertar", response_model=None, tags=["centro"])
+def insertar_pedido(pedido: PedidoDB, db: Session = Depends(get_db)):
     try:
         # Insertando nuevo pedido en la db
         logger.info(f"Insertando pedido para {pedido.cliente}")
@@ -227,7 +222,26 @@ def entregar_pedido(id: int, centro: CentroDB, request: Request, db: Session = D
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
         raise HTTPException(status_code=500, detail=f"Error interno del servidor. {e}")
-
+    
+# Metodo GET para obtener un pedido por su id
+# GET - /pedidos/info/{id}
+@router.get("/info/{id}", response_model=None, tags=["centro"])
+def get_pedido_por_id(id: int, request: Request, db: Session = Depends(get_db)):
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token)
+    try:
+        # Obteniendo pedido por id
+        logger.info(f"Devolviendo pedido {id}")
+        pedido = Pedido.devolver_pedido(id, db)
+        if (pedido == None):
+            raise Exception(f"No se encontro el pedido")
+        return pedido
+    except Exception as e:
+        logger.error(f"Hubo una excepcion: {e}")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor. {e}")
 
 def cambiar_estado(id, estado, centro, db: Session = Depends(get_db), update_centro=False, estado_previo="tomado"):
     pedido = Pedido.devolver_pedido(id, db)

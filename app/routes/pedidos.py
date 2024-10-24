@@ -24,7 +24,6 @@ class ItemDB(BaseModel):
     cantidad : int
 
 class PedidoDB(BaseModel):
-    estado : str
     cliente : str
     items : List[ItemDB]
 

@@ -8,7 +8,7 @@ from models.material import Material
 from helpers.logging import logger
 
         
-def presentar_info_pedidos(pedidos):
+def presentar_info_pedidos(pedidos, db: Session):
     response = []
     for pedido in pedidos:
         obj = {
@@ -19,11 +19,11 @@ def presentar_info_pedidos(pedidos):
         }
         for item in pedido.items:
             obj["Items"].append({
-                "Material": Material.devolver_material(item.idmaterial).nombre,
+                "Material": Material.devolver_material(item.idmaterial, db).nombre,
                 "Cantidad": item.cantidad
             })
         if pedido.idcentro is not None:
-            obj["Centro"] = Centro.devolver_centro(pedido.idcentro)
+            obj["Centro"] = Centro.devolver_centro(pedido.idcentro, db)
         response.append(obj)
     return response
 
@@ -50,7 +50,7 @@ class Pedido(Base):
     def devolver_pedidos_todos(db: Session):
         try:
             pedidos = db.query(Pedido).all()
-            pedidos_format = presentar_info_pedidos(pedidos)
+            pedidos_format = presentar_info_pedidos(pedidos, db)
             return pedidos_format
         except Exception as e:
             raise Exception(f"Error al devolver los pedidos: {e}")
@@ -58,7 +58,7 @@ class Pedido(Base):
     def devolver_pedidos_por_estado(estado, db: Session):
         try:
             pedidos = db.query(Pedido).filter(Pedido.estado == estado).all()
-            pedidos_format = presentar_info_pedidos(pedidos)
+            pedidos_format = presentar_info_pedidos(pedidos, db)
             return pedidos_format
         except Exception as e:
             raise Exception(f"Error: {e}")
@@ -136,7 +136,7 @@ class Pedido(Base):
             .filter(Pedido.estado == "generado")
             .all()
              )
-            pedidos_format = presentar_info_pedidos(pedidos)
+            pedidos_format = presentar_info_pedidos(pedidos, db)
             return pedidos_format
         except Exception as e:
             logger.error(f"Error en modelo pedido. {e}")

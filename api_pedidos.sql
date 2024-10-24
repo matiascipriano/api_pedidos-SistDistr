@@ -57,3 +57,12 @@ CREATE TABLE usuario (
   nombre_completo VARCHAR(100) NOT NULL
 );
 
+-- Trigger structure for table `usuario`
+DO
+$$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM usuario WHERE usuario = 'admin') THEN
+    INSERT INTO usuario (usuario, contrasena, nombre_completo) VALUES ('admin', '$2b$12$g.duYSd4yF3ltAT5tDpSheDlCb2/IHdgXQN8cLwlF6WB0mI9MJVd2', 'Administrador');
+  END IF;
+END
+$$;

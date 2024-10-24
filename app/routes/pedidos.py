@@ -55,8 +55,13 @@ def get_pedidos_todos(request: Request, db: Session = Depends(get_db)):
 
 # Metodo POST para insertar un nuevo pedido
 # POST - /pedidos/insertar
-@router.post("/insertar", response_model=None, tags=["centro"])
-def insertar_pedido(pedido: PedidoDB, db: Session = Depends(get_db)):
+@router.post("/insertar", response_model=None, tags=["admin"])
+def insertar_pedido(pedido: PedidoDB, request: Request, db: Session = Depends(get_db)):
+    try:
+        token = request.headers.get("Authorization").split()[1]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Falta authorization header")
+    login.get_current_user(token)
     try:
         # Insertando nuevo pedido en la db
         logger.info(f"Insertando pedido para {pedido.cliente}")

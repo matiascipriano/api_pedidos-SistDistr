@@ -39,13 +39,8 @@ def get_usuarios_todos(db: Session = Depends(get_db)):
     
 # Metodo POST para generar un nuevo usuario en la base datos
 # POST - /usuarios/insertar
-@router.post("/insertar", response_model=None, tags=["admin"])
-def insertar_usuario(usuario: UsuarioInDB, request: Request, db: Session = Depends(get_db)):
-    try:
-        token = request.headers.get("Authorization").split()[1]
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Falta authorization header")
-    login.get_current_user(token)
+@router.post("/insertar", response_model=None, tags=["centro"])
+def insertar_usuario(usuario: UsuarioInDB, db: Session = Depends(get_db)):
     try:
         # Verificando que el usuario no exista
         if(Usuario.obtener_usuario_por_nombre_usuario(usuario.usuario.lower(),db)):

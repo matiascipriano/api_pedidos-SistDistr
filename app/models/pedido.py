@@ -75,7 +75,7 @@ class Pedido(Base):
         try:
             pedido = db.query(Pedido).filter(Pedido.idpedido == id).first()
             if pedido == None:
-                raise HTTPException(status_code=404, detail="No se encontro el pedido")
+                raise Exception(f"No se encontro el pedido")
             pedido.estado = estado
             db.commit()
             db.refresh(pedido)
@@ -88,9 +88,13 @@ class Pedido(Base):
         try:
             pedido = db.query(Pedido).filter(Pedido.idpedido == id).first()
             if pedido == None:
-                raise HTTPException(status_code=404, detail="No se encontro el pedido")
+                raise Exception(f"No se encontro el pedido")
             pedido.estado = estado
-            pedido.idcentro = centro
+            if (estado == "generado" and pedido.idcentro is not None):
+                # Si se cancela, se elimina el centro del pedido
+                pedido.idcentro = None
+            else:
+                pedido.idcentro = centro
             db.commit()
             db.refresh(pedido)
             return pedido

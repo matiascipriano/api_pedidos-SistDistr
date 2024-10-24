@@ -26,6 +26,7 @@ class PedidoDB(BaseModel):
     items : list
 
 class CentroDB(BaseModel):
+    ## En la BD esta uppercase
     nombre_centro : str
     direccion: str
 
@@ -142,7 +143,8 @@ def tomar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depe
     login.get_current_user(token)
     try:
         # Tomando pedido
-        logger.info(f"Tomando pedido {id} para {centro.nombre_centro}")
+        nombre_centro = centro.nombre_centro.upper()
+        logger.info(f"Tomando pedido {id} para {nombre_centro}")
         pedido = Pedido.devolver_pedido(id, db)
         if (pedido == None):
             logger.error(f"No se encontro el pedido")
@@ -150,15 +152,11 @@ def tomar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depe
         if (pedido.estado != "generado"):
             logger.error(f"El pedido no esta disponible")
             raise Exception("El pedido no esta disponible")
-        materiales = Pedido.devolver_materiales_pedido(id, db)
-        centro_nombre = centro.nombre_centro.upper()
-        centro_db = Centro.devolver_centro_por_nombre(centro_nombre, db)
+        centro_db = Centro.devolver_centro_por_nombre(nombre_centro, db)
         if (centro_db == None):
-            logger.info(f"Registrando {centro.nombre_centro}")
-            centro = Centro.insertar_centro_con_materiales(centro.nombre_centro, centro.direccion, materiales, db)
-        else:
-            logger.info(f"Referenciando {centro.nombre_centro}")
-            centro = Centro.referenciar_materiales(centro.nombre_centro, materiales, db)
+            logger.info(f"Registrando {nombre_centro}")
+            centro = Centro.insertar_centro(nombre_centro, centro.direccion, db)
+
         pedido = Pedido.cambiar_estado_pedido_centro(id, "tomado", centro_db.idcentro, db)
         return pedido
     except Exception as e:
@@ -177,7 +175,8 @@ def cancelar_pedido(id: int, centro: CentroDB, request: Request, db: Session = D
     login.get_current_user(token)
     try:
         # Tomando pedido
-        logger.info(f"Cancelando pedido {id} para {centro.nombre_centro}")
+        nombre_centro = centro.nombre_centro.upper()
+        logger.info(f"Cancelando pedido {id} para {nombre_centro}")
         pedido=cambiar_estado(id, 'generado', centro, db, update_centro=True)        
         return pedido
     except Exception as e:
@@ -195,8 +194,13 @@ def enviar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Dep
     login.get_current_user(token)
     try:
         # Tomando pedido
-        logger.info(f"Pedido {id} enviado desde {centro.nombre_centro}")
-        pedido=cambiar_estado(id, 'enviado', centro, db)        
+        nombre_centro = centro.nombre_centro.upper()
+        logger.info(f"Pedido {id} enviado desde {nombre_centro}")
+        pedido=cambiar_estado(id, 'enviado', centro, db)
+        materiales = Pedido.devolver_materiales_pedido(id, db)
+        centro = Centro.referenciar_materiales(nombre_centro, materiales, db)
+        logger.info(f"Referenciando {nombre_centro}")
+        centro = Centro.referenciar_materiales(nombre_centro, materiales, db)
         return pedido
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
@@ -213,7 +217,8 @@ def entregar_pedido(id: int, centro: CentroDB, request: Request, db: Session = D
     login.get_current_user(token)
     try:
         # Tomando pedido
-        logger.info(f"Pedido {id} entregado desde {centro.nombre_centro}")
+        nombre_centro = centro.nombre_centro.upper()
+        logger.info(f"Pedido {id} entregado desde {nombre_centro}")
         pedido=cambiar_estado(id, 'entregado', centro, db, estado_previo='enviado')        
         return pedido
     except Exception as e:
@@ -227,7 +232,8 @@ def cambiar_estado(id, estado, centro, db: Session = Depends(get_db), update_cen
         raise Exception("No se encontro el pedido")
     if (pedido.estado != estado_previo):
         raise Exception("El pedido no esta disponible")
-    centro = Centro.devolver_centro_por_nombre(centro.nombre_centro, db)
+    nombre_centro = centro.nombre_centro.upper()
+    centro = Centro.devolver_centro_por_nombre(nombre_centro, db)
     if (pedido.idcentro == centro.idcentro):
         centro_id = None if update_centro else centro.idcentro  
         pedido = Pedido.cambiar_estado_pedido_centro(id, estado, centro_id, db)

@@ -55,7 +55,7 @@ class Centro(Base):
         try:
             centro = Centro.devolver_centro_por_nombre(centro, db)
             for mat in materiales:
-                material = Material.devolver_material_por_nombre(mat, db)
+                material = Material.devolver_material_por_nombre(mat.nombre, db)
                 if (material == None):
                     raise Exception(f"El material {mat} no existe")
                 if (material in centro.materiales):

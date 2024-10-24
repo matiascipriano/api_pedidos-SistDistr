@@ -200,7 +200,6 @@ def enviar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Dep
         logger.info(f"Pedido {id} enviado desde {nombre_centro}")
         pedido=cambiar_estado(id, 'enviado', centro, db)
         materiales = Pedido.devolver_materiales_pedido(id, db)
-        centro = Centro.referenciar_materiales(nombre_centro, materiales, db)
         logger.info(f"Referenciando {nombre_centro}")
         centro = Centro.referenciar_materiales(nombre_centro, materiales, db)
         return pedido

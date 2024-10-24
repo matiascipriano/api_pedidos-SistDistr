@@ -21,14 +21,14 @@ class Usuario(Base):
             db.refresh(usuario)
             return usuario
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error al insertar el usuario: {e}")
+            raise Exception(f"Error al insertar el usuario: {e}")
         
     def devolver_usuarios(db: Session):
         try:
             usuarios = db.query(Usuario).all()
             return usuarios
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error al devolver los usuarios: {e}")
+            raise Exception(f"Error al devolver los usuarios: {e}")
                 
     def devolver_usuario(id,db: Session):
         try:
@@ -36,7 +36,7 @@ class Usuario(Base):
             return usuario
         except Exception as e:
             logger.error(f"Error al devolver el usuario: {e}")
-            raise HTTPException(status_code=500, detail=f"Error al devolver el usuario: {e}")
+            raise Exception(f"Error al devolver el usuario: {e}")
     
     def obtener_usuario_por_nombre_usuario(usuario: str, db: Session):
         usuario = db.query(Usuario).filter(Usuario.usuario == usuario).first()

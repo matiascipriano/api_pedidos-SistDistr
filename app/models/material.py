@@ -17,7 +17,7 @@ class Material(Base):
             material = db.query(Material).filter(Material.idmaterial == id).first()
             return material.nombre
         except Exception as e:
-            raise (f"Error al devolver el material: {e}")
+            raise Exception(f"Error al devolver el material: {e}")
         
     def devolver_materiales_todos(db: Session):
             materiales = db.query(Material).all()
@@ -28,7 +28,7 @@ class Material(Base):
             material = db.query(Material).filter(func.lower(Material.nombre) == nombre.lower()).first()
             return material
         except Exception as e:
-            raise (f"Error al devolver el material: {e}")
+            raise Exception(f"Error al devolver el material: {e}")
         
     def insertar_material(nombre,descr, db: Session):
         try:

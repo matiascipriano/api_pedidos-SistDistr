@@ -31,11 +31,11 @@ def get_usuarios_todos(db: Session = Depends(get_db)):
         # Obteniendo todos los usuarios
         usuarios = Usuario.devolver_usuarios(db)
         if (usuarios == None):
-            raise HTTPException(status_code=404, detail="No se encontraron usuarios en la base de datos.")
+            raise Exception("No se encontraron usuarios en la base de datos.")
         return usuarios
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor. {e}")
     
 # Metodo POST para generar un nuevo usuario en la base datos
 # POST - /usuarios/insertar
@@ -46,11 +46,12 @@ def insertar_usuario(usuario: UsuarioInDB, request: Request, db: Session = Depen
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Falta authorization header")
     login.get_current_user(token)
-    # Verificando que el usuario no exista
-    if(Usuario.obtener_usuario_por_nombre_usuario(usuario.usuario.lower(),db)):
-        logger.error(f"El usuario {usuario} ya existe")
-        raise HTTPException(status_code=500, detail=f"Ya existe este usuario bajo el nombre: {usuario.usuario}")
     try:
+        # Verificando que el usuario no exista
+        if(Usuario.obtener_usuario_por_nombre_usuario(usuario.usuario.lower(),db)):
+            logger.error(f"El usuario {usuario} ya existe")
+            raise Exception(f"Ya existe este usuario bajo el nombre: {usuario.usuario}")
+
         # Insertando nuevo usuario en la db
         logger.info(f"Insertando usuario: {usuario.usuario}")
         hash_pass = pwd_context.hash(usuario.contrasena)

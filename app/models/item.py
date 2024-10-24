@@ -24,4 +24,4 @@ class Item(Base):
             db.commit()
             return item
         except Exception as e:
-            raise (f"Error al devolver la recoleccion: {e}")
+            raise Exception(f"Error al devolver la recoleccion: {e}")

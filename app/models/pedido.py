@@ -26,14 +26,14 @@ class Pedido(Base):
             pedido = db.query(Pedido).filter(Pedido.idpedido == id).first()
             return pedido
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error al devolver el pedido: {e}")
+            raise Exception(f"Error al devolver el pedido: {e}")
 
     def devolver_pedidos_todos(db: Session):
         try:
             pedidos = db.query(Pedido).all()
             return pedidos
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error al devolver los pedidos: {e}")
+            raise Exception(f"Error al devolver los pedidos: {e}")
 
     def devolver_pedidos_por_estado(estado, db: Session):
         try:
@@ -50,7 +50,7 @@ class Pedido(Base):
                 response.append(obj)
             return response
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error: {e}")
+            raise Exception(f"Error: {e}")
         
     def insertar_pedido(data, db: Session):
         try:
@@ -69,7 +69,7 @@ class Pedido(Base):
             return pedido
         except Exception as e:
             logger.error(f"Error en modelo pedido. {e}")
-            raise HTTPException(status_code=500, detail=f"Error al insertar recoleccion: {e}")
+            raise Exception(f"Error al insertar recoleccion: {e}")
         
     def cambiar_estado_pedido(id, estado, db):
         try:
@@ -82,7 +82,7 @@ class Pedido(Base):
             return pedido
         except Exception as e:
             logger.error(f"Error actualizando pedido {id}. {e}")
-            raise HTTPException(status_code=500, detail=f"Error al cambiar estado del pedido: {e}")
+            raise Exception(f"Error al cambiar estado del pedido: {e}")
         
     def cambiar_estado_pedido_centro(id, estado, centro, db):
         try:
@@ -96,7 +96,7 @@ class Pedido(Base):
             return pedido
         except Exception as e:
             logger.error(f"Error actualizando pedido {id}. {e}")
-            raise HTTPException(status_code=500, detail=f"Error al cambiar estado del pedido: {e}")
+            raise Exception(f"Error al cambiar estado del pedido: {e}")
         
     def devolver_materiales_pedido(id, db):
         try:
@@ -108,7 +108,7 @@ class Pedido(Base):
             return materiales
         except Exception as e:
             logger.error(f"Error devolviendo materiales del pedido {id}. {e}")
-            raise HTTPException(status_code=500, detail=f"Error al devolver materiales del pedido: {e}")
+            raise Exception(f"Error al devolver materiales del pedido: {e}")
     
 
     def devolver_pedidos_por_material(nombre, db: Session):
@@ -124,7 +124,7 @@ class Pedido(Base):
             return pedidos
         except Exception as e:
             logger.error(f"Error en modelo pedido. {e}")
-            raise HTTPException(status_code=500, detail=f"Error al insertar recoleccion: {e}")
+            raise Exception(f"Error al insertar recoleccion: {e}")
 
     def devolver_pedidos_por_centro(db: Session, estado=None, centro =None):
         try:
@@ -139,5 +139,5 @@ class Pedido(Base):
             pedidos = query.all()
             return pedidos
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error: {e}")
+            raise Exception(f"Error: {e}")
      

@@ -32,11 +32,11 @@ def get_centros_todos(db: Session = Depends(get_db)):
         # Obteniendo todos los centros de recoleccion
         centros = Centro.devolver_centros_todos(db)
         if (centros == None):
-            raise HTTPException(status_code=404, detail="No se encontraron centros de recolección en la base de datos.")
+            raise Exception("No se encontraron centros de recolección en la base de datos.")
         return centros
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor. {e}")
 
 # Metodo POST para insertar un nuevo centro de recoleccion
 # POST - /centros/insertar
@@ -50,7 +50,7 @@ def insertar_centro(nombre: str, request: Request, direcc: str, db: Session = De
     # Verificando que el centro no exista
     if (Centro.devolver_centro_por_nombre(nombre,db) != None):
         logger.error(f"El grupo {nombre} ya existe")
-        return {"detail": f"Ya existe este centro de recolección bajo el nombre: {centro.nombre}"}
+        raise Exception(f"Ya existe este centro de recolección bajo el nombre: {centro.nombre}")
     try:
         # Insertando nuevo centro en la db
         logger.info(f"Insertando grupo: {nombre}")
@@ -74,4 +74,4 @@ def get_centros_todos(request: Request, db: Session = Depends(get_db), estado: O
         return pedidos
     except Exception as e:
         logger.error(f"Hubo una excepcion: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor. {e}")

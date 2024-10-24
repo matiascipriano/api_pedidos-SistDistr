@@ -15,7 +15,7 @@ class Material(Base):
     def devolver_material(id, db: Session):
         try:
             material = db.query(Material).filter(Material.idmaterial == id).first()
-            return material.nombre
+            return material
         except Exception as e:
             raise Exception(f"Error al devolver el material: {e}")
         

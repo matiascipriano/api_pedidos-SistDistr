@@ -19,7 +19,7 @@ def presentar_info_pedidos(pedidos, db: Session):
         }
         for item in pedido.items:
             obj["Items"].append({
-                "Material": Material.devolver_material(item.idmaterial, db),
+                "Material": Material.devolver_material(item.idmaterial, db).nombre,
                 "Cantidad": item.cantidad
             })
         if pedido.idcentro is not None:

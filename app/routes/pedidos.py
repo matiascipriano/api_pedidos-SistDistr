@@ -6,6 +6,8 @@ from models.centro import Centro
 from database import SessionLocal
 from helpers.logging import logger
 from pydantic import BaseModel
+from typing import Optional
+
 
 # Tener una session nueva para cada consulta
 def get_db():
@@ -105,10 +107,10 @@ def cambiar_estado_pedido(id: int, estado: str, request: Request, db: Session = 
         logger.error(f"Hubo una excepcion: {e}")
         raise HTTPException(status_code=500, detail="Error interno del servidor.")
     
-# Metodo GET para obtener los pedidos disponibles
+# Metodo GET para obtener los pedidos disponibles o disponibles filtrando por material
 # GET - /pedidos/disponibles
 @router.get("/disponibles", response_model=None, tags=["centro"])
-def get_pedidos_disponibles(request: Request, db: Session = Depends(get_db)):
+def get_pedidos_disponibles(request: Request, db: Session = Depends(get_db), material : Optional[str] = None):
     try:
         token = request.headers.get("Authorization").split()[1]
     except Exception as e:
@@ -116,8 +118,12 @@ def get_pedidos_disponibles(request: Request, db: Session = Depends(get_db)):
     login.get_current_user(token)
     try:
         # Obteniendo pedidos disponibles
-        logger.info(f"Devolviendo pedidos disponibles")
-        pedidos = Pedido.devolver_pedidos_por_estado("generado", db)
+        if material is None:
+            logger.info(f"Devolviendo pedidos disponibles")
+            pedidos = Pedido.devolver_pedidos_por_estado("generado", db)
+        else:
+            logger.info(f"Devolviendo pedidos con material {material}")
+            pedidos = Pedido.devolver_pedidos_por_material(material, db)
         if (pedidos == None):
             raise HTTPException(status_code=404, detail="No se encontraron pedidos disponibles")
         return pedidos
@@ -158,26 +164,6 @@ def tomar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depe
         raise HTTPException(status_code=500, detail="Error interno del servidor.")
 
 
-# Metodo GET para obtener los pedidos a partir de un material
-# GET - /pedidos/disponibles/material/{material}
-@router.get("/disponibles/material/{material}", response_model=None, tags=["centro"])
-def get_pedidos_por_material(material: str, request: Request, db: Session = Depends(get_db)):
-    try:
-        token = request.headers.get("Authorization").split()[1]
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Falta authorization header")
-    login.get_current_user(token) 
-    try:
-        # Obteniendo pedidos por estado
-        logger.info(f"Devolviendo pedidos con material {material}")
-        pedidos = Pedido.devolver_pedidos_por_material(material, db)
-        if (pedidos == None):
-            raise HTTPException(status_code=404, detail=f"No se encontraron pedidos con material {material}")
-        return pedidos
-    except Exception as e:
-        logger.error(f"Hubo una excepcion: {e}")
-        raise HTTPException(status_code=500, detail="Error interno del servidor.")
-    
 # Metodo PUT para cancelar un pedido
 # PUT - /pedidos/cancelar/{id}
 @router.put("/cancelar/{id}", response_model=None, tags=["centro"])

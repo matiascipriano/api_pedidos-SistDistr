@@ -67,7 +67,7 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-@router.post("/login", response_model=Token, tags=["admin", "centro"])
+@router.post("/login", response_model=Token, tags=["admin", "centro"], description="Loguea un usuario y devuelve un token de acceso para utilizar los endpoints protegidos")
 async def login(loginData: LoginData, db: Session = Depends(get_db)):
     logger.info(f"Intento de login de usuario {loginData.username}")
     username = loginData.username

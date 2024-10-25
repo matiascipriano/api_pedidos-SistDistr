@@ -112,7 +112,7 @@ def cambiar_estado_pedido(id: int, estado: str, request: Request, db: Session = 
     
 # Metodo GET para obtener los pedidos disponibles o disponibles filtrando por material
 # GET - /pedidos/disponibles
-@router.get("/disponibles", response_model=None, tags=["centro"])
+@router.get("/disponibles", response_model=None, tags=["centro"], description="Devuelve todos los pedidos disponibles, permite filtrar por material")
 def get_pedidos_disponibles(request: Request, db: Session = Depends(get_db), material : Optional[str] = None):
     try:
         token = request.headers.get("Authorization").split()[1]
@@ -136,7 +136,7 @@ def get_pedidos_disponibles(request: Request, db: Session = Depends(get_db), mat
 
 # Metodo PUT para tomar un pedido
 # PUT - /pedidos/tomar/{id}
-@router.put("/tomar/{id}", response_model=None, tags=["centro"])
+@router.put("/tomar/{id}", response_model=None, tags=["centro"], description="Toma un pedido disponible registrando la informacion del centro")
 def tomar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depends(get_db)):
     try:
         token = request.headers.get("Authorization").split()[1]
@@ -168,7 +168,7 @@ def tomar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depe
 
 # Metodo PUT para cancelar un pedido
 # PUT - /pedidos/cancelar/{id}
-@router.put("/cancelar/{id}", response_model=None, tags=["centro"])
+@router.put("/cancelar/{id}", response_model=None, tags=["centro"], description="Cancela un pedido tomado")
 def cancelar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depends(get_db)):
     try:
         token = request.headers.get("Authorization").split()[1]
@@ -187,7 +187,7 @@ def cancelar_pedido(id: int, centro: CentroDB, request: Request, db: Session = D
 
 # Metodo PUT para enviar un pedido
 # PUT - /pedidos/enviar/{id}
-@router.put("/enviar/{id}", response_model=None, tags=["centro"])
+@router.put("/enviar/{id}", response_model=None, tags=["centro"], description="Envia un pedido tomado")
 def enviar_pedido(id: int, centro: CentroDB, request: Request, db: Session = Depends(get_db)):
     try:
         token = request.headers.get("Authorization").split()[1]
@@ -228,7 +228,7 @@ def entregar_pedido(id: int, centro: CentroDB, request: Request, db: Session = D
     
 # Metodo GET para obtener un pedido por su id
 # GET - /pedidos/info/{id}
-@router.get("/info/{id}", response_model=None, tags=["centro"])
+@router.get("/info/{id}", response_model=None, tags=["centro"], description="Devuelve la informacion de un pedido por su id")
 def get_pedido_por_id(id: int, request: Request, db: Session = Depends(get_db)):
     try:
         token = request.headers.get("Authorization").split()[1]

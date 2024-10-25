@@ -62,7 +62,7 @@ def insertar_centro(nombre: str, request: Request, direcc: str, db: Session = De
 
 # Metodo GET para obtener todos los pedidos de todos los centro, permite filtrar por centro o estado
 # GET - /centros/pedidos
-@router.get("/pedidos", response_model=None, tags=["centro"])
+@router.get("/pedidos", response_model=None, tags=["centro"], description="Devuelve todos los pedidos relacionados a un centro, permite filtrar por estado o id de centro")
 def get_centros_todos(request: Request, db: Session = Depends(get_db), estado: Optional[str] = None, idcentro: Optional[int] = None):
     try:
         token = request.headers.get("Authorization").split()[1]

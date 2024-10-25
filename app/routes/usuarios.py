@@ -39,7 +39,7 @@ def get_usuarios_todos(db: Session = Depends(get_db)):
     
 # Metodo POST para generar un nuevo usuario en la base datos
 # POST - /usuarios/insertar
-@router.post("/insertar", response_model=None, tags=["centro"])
+@router.post("/insertar", response_model=None, tags=["centro"], description="Inserta o registra un nuevo usuario en la base de datos")
 def insertar_usuario(usuario: UsuarioInDB, db: Session = Depends(get_db)):
     try:
         # Verificando que el usuario no exista
